@@ -1,0 +1,27 @@
+# API keys and environment files
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+
+# Mac files
+.DS_Store
+
+# Logs
+*.log
+
+# Jupyter
+.ipynb_checkpoints
+
+# uv cache
+.uv/
+
+# IDE files
+.vscode/
+.idea/
