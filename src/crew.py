@@ -4,7 +4,7 @@ from crewai.project import CrewBase, agent, crew, task
 
 
 @CrewBase
-class EngineeringTeam():
+class EngineeringTeamCrew():
     """EngineeringTeam crew"""
 
     agents_config = 'config/agents.yaml'
