@@ -1,84 +1,66 @@
 import gradio as gr
 from accounts import Account, get_share_price
 
-# Create an instance of the Account class for a single user
-user_account = Account("DemoUser")
+# Initialize a single account for demonstration
+user_account = Account(user_id="user123", initial_deposit=1000)
 
 def create_account(initial_deposit):
-    user_account.create_account(initial_deposit)
-    return f"Account created with an initial deposit of ${initial_deposit}."
+    global user_account
+    user_account = Account(user_id="user123", initial_deposit=initial_deposit)
+    return "Account created with initial deposit of ${:.2f}".format(initial_deposit)
 
 def deposit_funds(amount):
     user_account.deposit(amount)
-    return f"Deposited ${amount}. Current balance: ${user_account.balance}."
+    return "Deposited: ${:.2f}. Current balance: ${:.2f}".format(amount, user_account.balance)
 
 def withdraw_funds(amount):
     try:
         user_account.withdraw(amount)
-        return f"Withdrew ${amount}. Current balance: ${user_account.balance}."
+        return "Withdrew: ${:.2f}. Current balance: ${:.2f}".format(amount, user_account.balance)
     except ValueError as e:
         return str(e)
 
 def buy_shares(symbol, quantity):
     try:
         user_account.buy_shares(symbol, quantity)
-        return f"Bought {quantity} shares of {symbol}."
+        return "Bought {} shares of {}. Current balance: ${:.2f}".format(quantity, symbol, user_account.balance)
     except ValueError as e:
         return str(e)
 
 def sell_shares(symbol, quantity):
     try:
         user_account.sell_shares(symbol, quantity)
-        return f"Sold {quantity} shares of {symbol}."
+        return "Sold {} shares of {}. Current balance: ${:.2f}".format(quantity, symbol, user_account.balance)
     except ValueError as e:
         return str(e)
 
-def portfolio_value():
-    return f"Total portfolio value: ${user_account.calculate_portfolio_value()}."
+def get_portfolio_value():
+    return "Total portfolio value: ${:.2f}".format(user_account.get_portfolio_value())
 
-def report_holdings():
-    holdings = user_account.report_holdings()
-    return holdings if holdings else "No holdings."
+def get_profit_loss():
+    return "Profit/Loss: ${:.2f}".format(user_account.get_profit_loss())
 
-def report_profit_loss():
-    profit_loss = user_account.report_profit_loss()
-    return f"Profit/Loss: ${profit_loss}."
+def get_holdings():
+    return user_account.get_holdings()
 
-def list_transactions():
-    transactions = user_account.list_transactions()
-    return transactions if transactions else "No transactions."
+def get_transactions():
+    return user_account.get_transactions()
 
-# Gradio UI layout
-with gr.Blocks() as demo:
-    gr.Markdown("# Trading Account Management System")
-    
-    with gr.Tab("Account Operations"):
-        initial_deposit = gr.Number(label="Initial Deposit", value=1000, step=100)
-        gr.Button("Create Account").click(create_account, inputs=initial_deposit, outputs="output")
-        gr.Markdown("### Deposit Funds")
-        deposit_amount = gr.Number(label="Deposit Amount", step=50)
-        gr.Button("Deposit").click(deposit_funds, inputs=deposit_amount, outputs="output")
-        
-        gr.Markdown("### Withdraw Funds")
-        withdraw_amount = gr.Number(label="Withdraw Amount", step=50)
-        gr.Button("Withdraw").click(withdraw_funds, inputs=withdraw_amount, outputs="output")
-        
-        gr.Markdown("### Buy Shares")
-        buy_symbol = gr.Textbox(label="Share Symbol (e.g., AAPL, TSLA, GOOGL)")
-        buy_quantity = gr.Number(label="Quantity", step=1)
-        gr.Button("Buy").click(buy_shares, inputs=[buy_symbol, buy_quantity], outputs="output")
-        
-        gr.Markdown("### Sell Shares")
-        sell_symbol = gr.Textbox(label="Share Symbol (e.g., AAPL, TSLA, GOOGL)")
-        sell_quantity = gr.Number(label="Quantity", step=1)
-        gr.Button("Sell").click(sell_shares, inputs=[sell_symbol, sell_quantity], outputs="output")
+interface = gr.Interface(
+    fn=create_account,
+    inputs=gr.Number(label="Initial Deposit"),
+    outputs="text",
+    title="Trading Account Management",
+    description="Create an account and manage your funds."
+)
 
-    with gr.Tab("Portfolio Information"):
-        gr.Button("Portfolio Value").click(portfolio_value, outputs="output")
-        gr.Button("Report Holdings").click(report_holdings, outputs="output")
-        gr.Button("Report Profit/Loss").click(report_profit_loss, outputs="output")
-        gr.Button("List Transactions").click(list_transactions, outputs="output")
+interface.add_function(fn=deposit_funds, inputs=gr.Number(label="Deposit Amount"), outputs="text", title="Deposit Funds")
+interface.add_function(fn=withdraw_funds, inputs=gr.Number(label="Withdrawal Amount"), outputs="text", title="Withdraw Funds")
+interface.add_function(fn=buy_shares, inputs=[gr.Textbox(label="Stock Symbol"), gr.Number(label="Quantity")], outputs="text", title="Buy Shares")
+interface.add_function(fn=sell_shares, inputs=[gr.Textbox(label="Stock Symbol"), gr.Number(label="Quantity")], outputs="text", title="Sell Shares")
+interface.add_function(fn=get_portfolio_value, inputs=[], outputs="text", title="Get Portfolio Value")
+interface.add_function(fn=get_profit_loss, inputs=[], outputs="text", title="Get Profit/Loss")
+interface.add_function(fn=get_holdings, inputs=[], outputs="json", title="Get Holdings")
+interface.add_function(fn=get_transactions, inputs=[], outputs="text", title="Get Transactions")
 
-    output = gr.Textbox(label="Output", interactive=False)
-
-demo.launch()
+interface.launch()
