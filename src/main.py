@@ -4,7 +4,7 @@ from crew import EngineeringTeamCrew
 import sys
 import warnings
 import os
-import datetime import datetime
+from datetime import datetime
 
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
@@ -39,7 +39,7 @@ def run():
     }
 
     # Create and run the crew
-    result = EngineeringTeam().crew().kickoff(inputs=inputs)
+    result = EngineeringTeamCrew().crew().kickoff(inputs=inputs)
 
 
 if __name__ == "__main__":
